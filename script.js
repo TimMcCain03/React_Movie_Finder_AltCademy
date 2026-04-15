@@ -4,6 +4,7 @@ class MovieFinder extends React.Component {
     this.state = {
       searchTerm: '',
       results: [],
+      error: '',
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -23,22 +24,27 @@ class MovieFinder extends React.Component {
     }
 
     // make the AJAX request to OMDBAPI to get a list of results
-    fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=495c9e0e`)
-    .then((response) => {
+    fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=495c9e0e`).then((response) => {
       if (response.ok) {
         // .ok returns true if response status is 200-299
         return response.json();
       }
       throw new Error('Request was either a 404 or 500');
     }).then((data) => {
-      console.log(data);  // log the response data for now
+      if (data.Response === 'False') {
+        throw new Error(data.Error);
+      }
+      if (data.Response === 'True' && data.Search) {
+        this.setState({ results: data.Search, error: '' });
+      }
     }).catch((error) => {
+      this.setState({ error: error.message });
       console.log(error);
     })
   }
 
-  render() {
-    const { searchTerm, results } = this.state;  // ES6 destructuring
+   render() {
+    const { searchTerm, results, error } = this.state;
 
     return (
       <div className="container">
@@ -54,14 +60,33 @@ class MovieFinder extends React.Component {
               />
               <button type="submit" className="btn btn-primary">Submit</button>
             </form>
-            {results.map((movie) => {
-              return null;  // returns nothing for now
-            })}
+            {(() => {
+              if (error) {
+                return error;
+              }
+              return results.map((movie) => {
+                return <Movie key={movie.imdbID} movie={movie} />;
+              })
+            })()}
           </div>
         </div>
       </div>
     )
   }
+}
+
+const Movie = (props) => {
+  const { Title, Year, imdbID, Type, Poster } = props.movie;
+  return (
+    <div className="row">
+      <div className="col-4 col-md-3 mb-3">
+                <a href={`https://www.imdb.com/title/${imdbID}/`} target="_blank">
+          <h4>{Title}</h4>
+          <p>{Type} | {Year}</p>
+        </a>
+      </div>
+    </div>
+  )
 }
 
 const container = document.getElementById('root');
