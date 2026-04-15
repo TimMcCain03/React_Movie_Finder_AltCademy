@@ -7,7 +7,7 @@ class MovieFinder extends React.Component {
     };
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);  
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(event) {
@@ -16,27 +16,29 @@ class MovieFinder extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
-    let { searchTerm } = this.state;
-    searchTerm = searchTerm.trim();
-    if(!searchTerm) {
-      return;
+    let { searchTerm } = this.state;  // ES6 destructuring
+    searchTerm = searchTerm.trim();  // clean the string
+    if (!searchTerm) {  // make sure the value isn't an empty string
+      return;  // early return
     }
 
-    fetch('https://www.omdbapi.com/?s=${searchTerm}&apikey=495c9e0e')
+    // make the AJAX request to OMDBAPI to get a list of results
+    fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=495c9e0e`)
     .then((response) => {
       if (response.ok) {
+        // .ok returns true if response status is 200-299
         return response.json();
       }
       throw new Error('Request was either a 404 or 500');
     }).then((data) => {
-      console.log(data); // testing rn
+      console.log(data);  // log the response data for now
     }).catch((error) => {
       console.log(error);
     })
   }
 
   render() {
-    const { searchTerm, results } = this.state;
+    const { searchTerm, results } = this.state;  // ES6 destructuring
 
     return (
       <div className="container">
@@ -53,7 +55,7 @@ class MovieFinder extends React.Component {
               <button type="submit" className="btn btn-primary">Submit</button>
             </form>
             {results.map((movie) => {
-              return null;
+              return null;  // returns nothing for now
             })}
           </div>
         </div>
